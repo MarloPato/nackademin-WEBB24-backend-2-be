@@ -1,0 +1,88 @@
+import { Hono } from "hono";
+import fs from "fs/promises";
+import courseValidator from "../validators/courseValidator.js";
+import slugify from "slugify";
+
+const courseApp = new Hono();
+
+courseApp.get("/", async (c) => {
+
+    try {
+        //? Database query simulation /data/courses.json
+        const data: string = await fs.readFile("src/data/courses.json", "utf8");
+        const courses: Course[] = JSON.parse(data);
+        return c.json(courses);
+    } catch (error) {
+        return c.json([]);
+    }
+});
+
+courseApp.get("/:id",async (c) => {
+    const { id } = c.req.param();
+    try {
+        const data: string = await fs.readFile("src/data/courses.json", "utf8");
+        const courses: Course[] = JSON.parse(data);
+        const course = courses.find((course) => course.course_id === id);
+        if (!course) {
+            throw new Error("Course not found");
+        }
+        return c.json(course);
+    } catch (error) {
+        console.error(error);
+        return c.json(null, 404);
+    }
+});
+
+courseApp.post("/", courseValidator, async (c) => {
+    try {
+        const body = await c.req.valid("json") as NewCourse;
+        const course: Course = {
+            course_id: body.course_id || slugify.default(body.title, { lower: true, strict: true }),
+            ...body
+        };
+        return c.json(course, 201);
+    } catch (error) {
+        console.error(error);
+        return c.json({ error: "Failed to create course" }, 400);
+    }
+});
+
+courseApp.put("/:id", courseValidator, async (c) => {
+    const { id } = c.req.param();
+    try {
+        const body = await c.req.valid("json") as NewCourse;
+        const data: string = await fs.readFile("src/data/courses.json", "utf8");
+        const courses: Course[] = JSON.parse(data);
+        const course = courses.find((course) => course.course_id === id);
+        if (!course) {
+            return c.json({ error: "Course not found" }, 404);
+        }
+        const updatedCourse: Course = {
+            ...body,
+            course_id: id,
+        };
+        return c.json(updatedCourse, 200);
+    } catch (error) {
+        console.error(error);
+        return c.json({ error: "Failed to update course" }, 400);
+    }
+});
+
+courseApp.delete("/:id", async (c) => {
+
+    const { id } = c.req.param();
+    try {
+        const data: string = await fs.readFile("src/data/courses.json", "utf8");
+        const courses: Course[] = JSON.parse(data);
+        const course = courses.find((course) => course.course_id === id);
+        if (!course) {
+            return c.json({ error: "Course not found" }, 404);
+        }
+        return c.json(course, 200);
+    } catch (error) {
+        console.error(error);
+        return c.json({ error: "Failed to delete course" }, 400);
+    }
+});
+
+export default courseApp;
