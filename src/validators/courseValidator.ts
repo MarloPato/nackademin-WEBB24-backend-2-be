@@ -1,27 +1,25 @@
-import { validator } from "hono/validator";
-import slugify from "slugify";
+import * as z from 'zod'
+import { zValidator } from '@hono/zod-validator'
+import slugify from 'slugify';
 
-const courseValidator = validator("json", async (value, c) => {
-    const course = await value as Partial<NewCourse>;
-    const errors: {
-        [key: string]: string[];
-    } = {};
-    if (!course.title) {
-        errors.title = ["Title is required"];
+const schema = z.object({
+    title: z.string("Title is required"),
+    instructor: z.string("Instructor is required"),
+    credits: z.number("Credits is required"),
+    course_id: z.string().optional(),
+    start_date: z.string().optional(),
+    end_date: z.string().optional(),
+    department: z.string().optional(),
+    description: z.string().optional(),
+});
+
+const courseValidator = zValidator("json", schema, (result, c) => {
+    if(!result.success) {
+        return c.json({ errors: result.error.issues }, 400);
     }
-    if (!course.instructor) {
-        errors.instructor = ["Instructor is required"];
+    if(!result.data.course_id) {
+        result.data.course_id = slugify.default(result.data.title, { lower: true, strict: true });
     }
-    if (!course.credits) {
-        errors.credits = ["Credits is required"];
-    }
-    if (Object.keys(errors).length > 0) {
-        return c.json({ errors }, 400);
-    }
-    if(course.course_id) {
-        value.course_id = slugify.default(course.course_id, { lower: true, strict: true });
-    }
-    return value;
 });
 
 export default courseValidator;

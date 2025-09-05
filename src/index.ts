@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import dotenv from "dotenv";
 import courseApp from "./routes/course.js";
+import studentApp from "./routes/student.js";
 
 dotenv.config();
 
@@ -12,6 +13,8 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 app.route("/courses", courseApp);
+app.route("/students", studentApp);
+
 serve(
   {
     fetch: app.fetch,

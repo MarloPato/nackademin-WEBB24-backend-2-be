@@ -5,6 +5,8 @@ interface NewCourse {
   credits: number;
   start_date?: string;
   end_date?: string;
+  department?: string;
+  description?: string;
 }
 
 interface Course extends NewCourse {

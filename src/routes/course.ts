@@ -35,12 +35,8 @@ courseApp.get("/:id",async (c) => {
 
 courseApp.post("/", courseValidator, async (c) => {
     try {
-        const body = await c.req.valid("json") as NewCourse;
-        const course: Course = {
-            course_id: body.course_id || slugify.default(body.title, { lower: true, strict: true }),
-            ...body
-        };
-        return c.json(course, 201);
+        const newCourse: NewCourse = c.req.valid("json");
+        return c.json(newCourse, 201);
     } catch (error) {
         console.error(error);
         return c.json({ error: "Failed to create course" }, 400);
@@ -50,7 +46,7 @@ courseApp.post("/", courseValidator, async (c) => {
 courseApp.put("/:id", courseValidator, async (c) => {
     const { id } = c.req.param();
     try {
-        const body = await c.req.valid("json") as NewCourse;
+        const body: NewCourse = c.req.valid("json");
         const data: string = await fs.readFile("src/data/courses.json", "utf8");
         const courses: Course[] = JSON.parse(data);
         const course = courses.find((course) => course.course_id === id);
@@ -58,6 +54,7 @@ courseApp.put("/:id", courseValidator, async (c) => {
             return c.json({ error: "Course not found" }, 404);
         }
         const updatedCourse: Course = {
+            ...course,
             ...body,
             course_id: id,
         };
