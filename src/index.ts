@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import courseApp from "./routes/course.js";
 import studentApp from "./routes/student.js";
+import { HTTPException } from "hono/http-exception";
 
 dotenv.config();
 
@@ -15,6 +16,14 @@ app.get("/", (c) => {
 });
 app.route("/courses", courseApp);
 app.route("/students", studentApp);
+
+app.onError((err, c) => {
+  if(err instanceof HTTPException) {
+    return err.getResponse()
+  }
+  console.error(err);
+  return c.json({ error: "Internal server error" }, 500);
+});
 
 serve(
   {
