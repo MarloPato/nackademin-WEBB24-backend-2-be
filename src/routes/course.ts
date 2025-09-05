@@ -1,17 +1,17 @@
 import { Hono } from "hono";
 import fs from "fs/promises";
 import courseValidator from "../validators/courseValidator.js";
-import slugify from "slugify";
+import { supabase } from "../lib/supabase.js";
+import type { PostgrestSingleResponse } from "@supabase/supabase-js";
+
 
 const courseApp = new Hono();
 
 courseApp.get("/", async (c) => {
 
     try {
-        //? Database query simulation /data/courses.json
-        const data: string = await fs.readFile("src/data/courses.json", "utf8");
-        const courses: Course[] = JSON.parse(data);
-        return c.json(courses);
+        const courses: PostgrestSingleResponse<Course[]> = await supabase.from("courses").select("*");
+        return c.json(courses.data);
     } catch (error) {
         return c.json([]);
     }
