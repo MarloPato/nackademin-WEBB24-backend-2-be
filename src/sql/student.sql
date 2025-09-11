@@ -9,6 +9,14 @@ CREATE TABLE students (
     phone_number VARCHAR(255)
 );
 
+ALTER TABLE students ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow Access to Authenticated Users"
+ON students
+FOR ALL
+TO authenticated
+USING (true);
+
 INSERT INTO students (student_id, first_name, last_name, email, date_of_birth, major, course_id) VALUES
 ('std_001', 'Anna', 'Karlsson', 'anna.k@example.com', '2003-05-15', 'Software Engineering', 'PGSQL-101'),
 ('std_002', 'Lars', 'Andersson', 'lars.a@example.com', '2001-11-30', 'Software Engineering', 'PGSQL-101'),

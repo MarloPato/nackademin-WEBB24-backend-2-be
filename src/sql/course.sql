@@ -10,6 +10,21 @@ CREATE TABLE courses (
     description TEXT
 );
 
+ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access to courses
+CREATE POLICY "Allow Public Read Access"
+ON courses
+FOR SELECT
+TO public
+USING (true);
+
+-- Allow authenticated users full access (INSERT, UPDATE, DELETE)
+CREATE POLICY "Allow Authenticated Full Access"
+ON courses
+FOR ALL
+TO authenticated
+USING (true);
 
 -- Insert data into courses table
 INSERT INTO courses (course_id, title, instructor, credits, start_date, end_date, department, description) VALUES

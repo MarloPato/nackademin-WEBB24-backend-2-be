@@ -4,7 +4,9 @@ import dotenv from "dotenv";
 
 import courseApp from "./routes/course.js";
 import studentApp from "./routes/student.js";
+import authApp from "./routes/auth.js";
 import { HTTPException } from "hono/http-exception";
+import { optionalAuth } from "./middleware/auth.middleware.js";
 
 dotenv.config();
 
@@ -14,6 +16,10 @@ const app = new Hono({
 app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
+
+app.use("*", optionalAuth);
+
+app.route("/auth", authApp);
 app.route("/courses", courseApp);
 app.route("/students", studentApp);
 

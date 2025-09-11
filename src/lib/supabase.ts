@@ -13,3 +13,4 @@ export const supabase = createClient(
     supabaseUrl,
     supabaseApiKey
 )
+export { supabaseUrl, supabaseApiKey }
