@@ -1,9 +1,8 @@
 import type { Context, Next } from "hono";
-import { getCookie, setCookie, deleteCookie } from "hono/cookie";
+import { setCookie } from "hono/cookie";
 import { createServerClient, parseCookieHeader } from "@supabase/ssr";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { supabaseUrl, supabaseApiKey } from "../lib/supabase.js";
-import { error } from "console";
 import { HTTPException } from "hono/http-exception";
 
 // Extend Hono context variables for TypeScript

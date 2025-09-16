@@ -3,10 +3,10 @@ import courseValidator from "../validators/courseValidator.js";
 import { HTTPException } from "hono/http-exception";
 import * as db from "../database/course.js";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
-import { withSupabase, requireAuth } from "../middleware/auth.middleware.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 const courseApp = new Hono();
 
-courseApp.get("/", withSupabase, async (c) => {
+courseApp.get("/", async (c) => {
   try {
     const sb = c.get("supabase");
     const courses: Course[] = await db.getCourses(sb);
@@ -16,7 +16,7 @@ courseApp.get("/", withSupabase, async (c) => {
   }
 });
 
-courseApp.get("/:id", withSupabase, async (c) => {
+courseApp.get("/:id", async (c) => {
   const { id } = c.req.param();
   try {
     const sb = c.get("supabase");
@@ -31,7 +31,7 @@ courseApp.get("/:id", withSupabase, async (c) => {
   }
 });
 
-courseApp.post("/", withSupabase, requireAuth, courseValidator, async (c) => {
+courseApp.post("/", requireAuth, courseValidator, async (c) => {
     const sb = c.get("supabase");
     const newCourse: NewCourse = c.req.valid("json");
     const response: PostgrestSingleResponse<Course> = await db.createCourse(sb, newCourse);
@@ -44,12 +44,11 @@ courseApp.post("/", withSupabase, requireAuth, courseValidator, async (c) => {
     return c.json(course, 201);
 });
 
-courseApp.put("/:id", withSupabase, courseValidator, async (c) => {
+courseApp.put("/:id", courseValidator, async (c) => {
   const sb = c.get("supabase");
   const { id } = c.req.param();
   const body: NewCourse = c.req.valid("json");
   const response: PostgrestSingleResponse<Course> = await db.updateCourse(sb, id, body);
-  console.log("Here is the response", response);
   if(response.error) {
     throw new HTTPException(404, {
         res: c.json({ error: "Course not found" }, 404),
@@ -58,7 +57,7 @@ courseApp.put("/:id", withSupabase, courseValidator, async (c) => {
   return c.json(response.data, 200);
 });
 
-courseApp.delete("/:id", withSupabase, requireAuth, async (c) => {
+courseApp.delete("/:id", requireAuth, async (c) => {
   const sb = c.get("supabase");
   const { id } = c.req.param();
   const response: PostgrestSingleResponse<Course> = await db.deleteCourse(sb, id);
