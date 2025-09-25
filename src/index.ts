@@ -6,9 +6,25 @@ dotenv.config();
 
 const app = new Hono();
 
+const serverStartTime = Date.now()
+
 app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
+
+app.get("/health/", (c) => {
+  const now = Date.now()
+  const uptimeSeconds = Math.floor((now - serverStartTime) / 1000)
+
+  return c.json({
+    status: "ok",
+    message: "Service is healthy",
+    uptime:uptimeSeconds,
+    startedAt: new Date(serverStartTime).toISOString(),
+    timestamp: new Date().toISOString(),
+    version: "1.0.0",
+  })
+})
 
 serve(
   {
