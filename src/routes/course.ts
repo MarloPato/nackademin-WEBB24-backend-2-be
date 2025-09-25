@@ -15,14 +15,24 @@ courseApp.get("/", async (c) => {
 });
 
 courseApp.get("/:id", async (c) => {
-    const { id } = c.req.param()
-  //TODO: Fetch single course
-  //TODO: Handle 404
+  const { id } = c.req.param();
+  try {
+    const data: string = await fs.readFile("src/data/courses.json", "utf8");
+    const courses: Course[] = JSON.parse(data);
+    const course = courses.find((course) => course.course_id === id);
+    if (!course) {
+      return c.json(null, 404);
+    }
+    return c.json(course);
+  } catch (error) {
+    console.error(error);
+    return c.json(null, 500);
+  }
 });
 
 courseApp.post("/", courseValidator, async (c) => {
   try {
-    const newCourse: NewCourse = c.req.valid("json")
+    const newCourse: NewCourse = c.req.valid("json");
     //TODO: Update data in database
     return c.json(newCourse, 201);
   } catch (error) {
@@ -36,18 +46,42 @@ courseApp.post("/", courseValidator, async (c) => {
   }
 });
 
-courseApp.put("/:id", async (c) => {
-    const { id } = c.req.param()
-  //TODO: update single course
-  //TODO: Handle 404
-
+courseApp.put("/:id", courseValidator, async (c) => {
+  const { id } = c.req.param();
+  try {
+    const body: NewCourse = c.req.valid("json");
+    const data: string = await fs.readFile("src/data/courses.json", "utf8");
+    const courses: Course[] = JSON.parse(data);
+    const course = courses.find((course) => course.course_id === id);
+    if (!course) {
+      return c.json(null, 404);
+    }
+    const updatedCourse: Course = {
+      ...course,
+      ...body,
+      course_id: id,
+    };
+    return c.json(updatedCourse, 200);
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: "Failed to update course" }, 500);
+  }
 });
 
 courseApp.delete("/:id", async (c) => {
-    const { id } = c.req.param()
-  //TODO: delete single course
-  //TODO: Handle 404
-
+  const { id } = c.req.param();
+  try {
+    const data: string = await fs.readFile("src/data/courses.json", "utf8");
+    const courses: Course[] = JSON.parse(data);
+    const course = courses.find((course) => course.course_id === id);
+    if (!course) {
+      return c.json(null, 404);
+    }
+    return c.json(course, 200);
+  } catch (error) {
+    console.error(error);
+    return c.json({ error: "Failed to delete course" }, 500);
+  }
 });
 
 export default courseApp;
