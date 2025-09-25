@@ -1,6 +1,6 @@
 [
   {
-    "course_id": "PGSQL-101",
+    "course_id": "pgsql-101",
     "title": "PostgreSQL for Beginners",
     "instructor": "Dr. Elin Svensson",
     "credits": 5,
@@ -10,7 +10,7 @@
     "description": "An introductory course to relational databases using PostgreSQL. Covers everything from basic queries to table design."
   },
   {
-    "course_id": "WEBDEV-205",
+    "course_id": "webdev-205",
     "title": "Modern Web Development",
     "instructor": "Dr. David Chen",
     "credits": 7,
@@ -19,7 +19,7 @@
     "description": "A project-based course on building modern, full-stack web applications with React and Node.js."
   },
   {
-    "course_id": "HIST-101",
+    "course_id": "hist-101",
     "title": "Swedish History 101",
     "instructor": "Prof. Eva Lundström",
     "credits": 5,
@@ -28,7 +28,7 @@
     "department": "History"
   },
   {
-    "course_id": "ALGO-301",
+    "course_id": "algo-301",
     "title": "Data Structures & Algorithms",
     "instructor": "Dr. Elin Svensson",
     "credits": 10,
