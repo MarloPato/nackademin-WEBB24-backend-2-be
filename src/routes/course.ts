@@ -1,22 +1,40 @@
 import { Hono } from "hono";
 import fs from "fs/promises";
-import courseValidator from "../validators/courseValidator.js";
+import { courseValidator, courseQueryValidator } from "../validators/courseValidator.js";
+import { partialFilter, exactFilter } from "../utils/filters.js";
+import { sorter } from "../utils/sorters.js";
 
 const courseApp = new Hono();
 
-courseApp.get("/", async (c) => {
+courseApp.get("/", courseQueryValidator, async (c) => {
+    const { limit, offset, department, q, sortby } = c.req.valid("query");
 
     try {
         //? Database query simulation /data/courses.json
         const data: string = await fs.readFile("src/data/courses.json", "utf8");
-        const courses: Course[] = JSON.parse(data);
-        return c.json(courses);
+        let courses: Course[] = JSON.parse(data);
+        if(department) {
+            courses = courses.filter((course) => exactFilter(course, department, ["department"]));
+        }
+        if(q) {
+            courses = courses.filter((course) => partialFilter(course, q, ["title", "instructor", "description"]));
+        }
+        if(sortby === "title" || sortby === "start_date") {
+            courses = courses.sort((a, b) => sorter(a, b, sortby));
+        }
+        const response = {
+          data: courses.slice(offset, offset + limit),
+          count: courses.length,
+          offset,
+          limit,
+        }
+        return c.json(response);
     } catch (error) {
         return c.json([]);
     }
 });
 
-courseApp.get("/:id",async (c) => {
+courseApp.get("/:id", async (c) => {
     const { id } = c.req.param();
     try {
         const data: string = await fs.readFile("src/data/courses.json", "utf8");
