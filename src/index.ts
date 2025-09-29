@@ -31,8 +31,6 @@ app.get("/health/", (c) => {
   })
 })
 
-app.route("/courses", courseApp)
-
 serve(
   {
     fetch: app.fetch,
