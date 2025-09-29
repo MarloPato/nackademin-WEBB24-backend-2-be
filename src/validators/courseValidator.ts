@@ -13,7 +13,15 @@ const schema = z.object({
     description: z.string().optional(),
 });
 
-const courseValidator = zValidator("json", schema, (result, c) => {
+export const courseQueryValidator = zValidator("query", z.object({
+    limit: z.coerce.number().optional().default(10),
+    offset: z.coerce.number().optional().default(0),
+    department: z.string().optional(),
+    q: z.string().optional(),
+    sortby: z.union([z.literal("title"), z.literal("start_date"), z.string()]).optional().default("title"),
+}));
+
+export const courseValidator = zValidator("json", schema, (result, c) => {
     if(!result.success) {
         return c.json({ errors: result.error.issues }, 400);
     }
@@ -21,5 +29,3 @@ const courseValidator = zValidator("json", schema, (result, c) => {
         result.data.course_id = slugify.default(result.data.title, { lower: true, strict: true });
     }
 });
-
-export default courseValidator;
