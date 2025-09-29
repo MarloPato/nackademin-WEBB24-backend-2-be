@@ -7,33 +7,28 @@ import {
 } from "../validators/courseValidator.js";
 import * as db from "../database/course.js";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
+import type { Course, NewCourse } from "../types/course.d.js";
 
 const courseApp = new Hono();
 
 courseApp.get("/", courseQueryValidator, async (c) => {
-  const { limit, offset, department, q, sortby } = c.req.valid("query");
+  const query = c.req.valid("query");
 
   try {
-    //? Database query simulation /data/courses.json
-    // const startIndex = offset-1 > 0 ? offset-1 : 0
-    // const endIndex = startIndex + limit -1
-    const courses: Course[] = await db.getCourses();
-    const response = {
-      data: courses,
-      offset,
-      limit,
-    };
+    const response = await db.getCourses(query);
     return c.json(response);
   } catch (error) {
-    return c.json([]);
+    console.error(error);
+    return c.json({ error: "Failed to fetch courses" }, 500);
   }
 });
 
 courseApp.get("/:id", async (c) => {
   const { id } = c.req.param();
   try {
-    const courses: Course[] = await db.getCourses();
-    const course = courses.find((course) => course.course_id === id);
+    const query = { limit: 1000, offset: 0 }; // Get all courses to find by ID
+    const response = await db.getCourses(query);
+    const course = response.data.find((course) => course.course_id === id);
     if (!course) {
       return c.json({ error: "Course not found" }, 404);
     }
